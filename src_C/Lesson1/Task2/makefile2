@@ -1,0 +1,11 @@
+
+Target: ArrayList.o 
+		gcc -I./include -L./lib -o task2 main.c -static -lfun -lm
+ArrayList.o: ArrayList.c 
+		gcc -c ArrayList.c
+		ar rs libfun.a ArrayList.o
+		mv libfun.a ./lib
+clean: 
+		rm -rf *.o Target
+run: 
+		./task2
