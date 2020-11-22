@@ -21,7 +21,7 @@ int main(void) {
 	pthread_t thread;
 	struct thread_arg targ[] = {{"nameThread1","str1",1},{"nameThread2","str2",2},{"nameThread3","str3",3},{"nameThread4","str4",4}};
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 4; ++i)
 	{
 		if(pthread_create(&thread, NULL, &any_func, &targ[i]) != 0)
 		fprintf(stderr, "Error in thread \n");
