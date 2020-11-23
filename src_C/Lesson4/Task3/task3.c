@@ -39,14 +39,14 @@ int main(int argc, char const *argv[])
 	}
 
 	system("ps");
-	char* str = (char*) malloc (sizeof("kill ") + sizeof(int));
+	char* str = (char*) malloc (sizeof "kill " + sizeof(int));
 	int current_pid  = getpid();
 	for (int i = 1; i <= required; ++i)
 	{	
 		// printf("%i\n", i);
     	char numberInt[10] = {};
     	// printf("numberInt = %s\n", numberInt);
-    	str = (char*) realloc (str, sizeof("kill " + sizeof current_pid));
+    	str = (char*) realloc (str, sizeof "kill " + sizeof current_pid);
     	strcat(str, "kill ");
     	printf("str = %s\n",str);
     	sprintf(numberInt, "%d", current_pid+i);

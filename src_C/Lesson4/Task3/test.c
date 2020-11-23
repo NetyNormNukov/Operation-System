@@ -11,7 +11,6 @@ int main(void)
 	int arr[3];
 	pid_t pid = fork();
 	sleep(1);
-	// pid = fork();
 	if (pid == 0)
 	{
 		sleep(1);

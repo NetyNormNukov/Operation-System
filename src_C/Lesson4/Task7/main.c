@@ -86,6 +86,7 @@ int main(int argc, char* argv[]){
 	}
 	free(radString);
 	free(numStr);
+	
 	//среднее значение
 	double S = 0.0;
 	for(int i = 0; i < childCount; i++)
