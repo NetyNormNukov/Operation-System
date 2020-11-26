@@ -4,18 +4,23 @@
 #include <unistd.h>
 #include <stdbool.h> 
 
-
+void destructor(void* data){
+    fprintf(stderr,"Thread canceled. Max value is %d\n",*((int*)data));
+}
 
 void* asyncThreadFunc(void* argument){
 
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-	int i = 0;
-	while(1){
-		printf("Iteration: %d\n", i);
-		i++;
-		sleep(1);
-	}
 
+	int countForDestructor = 0;
+	while(1){
+		pthread_cleanup_push(&destructor,&countForDestructor);
+		printf("Iteration: %d\n", countForDestructor);
+		countForDestructor++;
+		sleep(1);
+		pthread_cleanup_pop(0);
+	}
 
 }
 
@@ -36,7 +41,17 @@ int main(int argc, char* argv[]) {
 
 
 	setbuf(stdout, NULL);
-	pthread_t thread, asyncThread;
+	pthread_t asyncThread;
+	pthread_attr_t attr;
+    if(pthread_attr_init(&attr)!=0){
+        fprintf(stdout,"Can't initialize thread attributes!\n");
+        return 0;
+    }
+    if(pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE)!=0){
+        fprintf(stdout,"Can't set joinable attributes!\n");
+        return 0;   
+    }
+
 
 	pthread_create(&asyncThread, NULL, &asyncThreadFunc, NULL);
 	if (pthread_create(&asyncThread, NULL, &asyncThreadFunc, NULL)!= 0) {

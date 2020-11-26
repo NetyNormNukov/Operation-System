@@ -37,7 +37,7 @@ void* syncThreadFunc(void* argument){
 	}
 	printf("End detached Thread\n");
 
-	return (void*) EXIT_SUCCESS;
+	return (void*) &pi;
 
 }
 
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 	if (result == PTHREAD_CANCELED)
 		printf("Thread was canceled\n");
 	else
-		printf("full pi = %f\n", *(double*)result);
+		printf("full pi = %f\n", *(double*)result * 4);
 
 	return EXIT_SUCCESS;
 }
