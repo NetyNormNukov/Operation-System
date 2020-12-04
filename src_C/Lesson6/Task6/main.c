@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-	pthread_create(&asyncThread, NULL, &asyncThreadFunc, NULL);
+	// pthread_create(&asyncThread, NULL, &asyncThreadFunc, NULL);
 	if (pthread_create(&asyncThread, NULL, &asyncThreadFunc, NULL)!= 0) {
 			fprintf(stderr, "Error pthread_create()\n");
 			exit(EXIT_FAILURE);

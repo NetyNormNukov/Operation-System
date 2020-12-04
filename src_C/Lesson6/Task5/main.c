@@ -6,7 +6,27 @@
 
 static pthread_key_t key;
 
+pthread_once_t once_var = PTHREAD_ONCE_INIT;
+
+
+void destructor(void* str)
+{
+	free(str);
+}
+
+void pthreadOnce(void)
+{
+	pthread_key_create(&key,destructor);
+}
+
+
+
 void* threadFunc(void* argument) {
+
+	if (pthread_once(&once_var, &pthreadOnce) != 0)
+	{
+		fprintf(stderr, "Error pthread_once()\n" );
+	}
 
 	int countForLoop = rand() % 10 +1;
 	char* getSpec = (char*)pthread_getspecific(key);
@@ -57,8 +77,10 @@ int main(int argc, char* argv[]) {
 
 
 	setbuf(stdout, NULL);
-	pthread_key_create(&key,NULL);
+	// pthread_key_create(&key,NULL);
 	pthread_t thread[countThreads];
+
+
 
 	for (int i = 0; i < countThreads; ++i)
 	{
@@ -78,6 +100,10 @@ int main(int argc, char* argv[]) {
 				fprintf(stderr, "Join error\n");
 			}
 		}
+	}
+
+	if(pthread_key_delete(key) != 0){
+		fprintf(stderr, "Error pthread_key_delete()\n" );
 	}
 
 	printf("Code EXIT = %d\n", result);

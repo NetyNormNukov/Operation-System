@@ -15,7 +15,6 @@ void* threadFunc(void* argument)
 
 void createThreads(pthread_t pthreads[], int countThreads){
 
-	printf
 	for (int i = 0; i < countThreads+1; ++i)
 	{	
 		if (pthread_create(&pthreads[i], NULL, &threadFunc, &i)!= 0) {
