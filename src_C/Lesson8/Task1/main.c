@@ -8,64 +8,80 @@ sem_t lock;
 sem_t can_add;
 sem_t can_sub;
 
-void * producerFunc (void * arg) {
-	int num = *(int*) arg;
-	int i;
+void seed() {
+	struct timespec now;
+	if (clock_gettime(CLOCK_REALTIME, &now) < 0) {
+		fprintf(stderr, "Error with time function!\n");
+		exit(EXIT_FAILURE);
+	}
+	srand(now.tv_nsec);
+}
 
-	while (1) {
+void * producerFunc (void * arg) {
+
+	while (1) 
+	{
+		int value = rand()%99 + 1;
+		int index;
 		sem_wait(&can_add);
 		sem_wait(&lock);
-		val += 1;
-		printf("\tIncrement thread: (%u), iteration: %d\n", (unsigned int)pthread_self(), i + 1);
+		sem_getvalue(&can_add, &index);
+		arr[index] = value;
+		// printf("\tIncrement thread: (%u), iteration: %d\n", (unsigned int)pthread_self(), i + 1);
 		sem_post(&lock);
 		sem_post(&can_sub);
+		sleep(1);
 	}
 
 	return NULL;
 }
 
 void * consumerFunc (void * arg) {
-	int num = *(int*) arg;
-	int i;
-
-	for (i = 0; i < num; i++) {
+	
+	while(1) 
+	{
+		int index;
+		int getValueArray;
 		sem_wait(&can_sub);
 		sem_wait(&lock);
-		val -= 1;
-		printf("\t\tDecrement thread: (%u), iteration: %d\n", (unsigned int)pthread_self(), i + 1);
+		sem_getvalue(&can_add, &index);
+		getValueArray = arr[index];
 		sem_post(&lock);
 		sem_post(&can_add);
+		printf("thread: (%u), value: %d\n", (unsigned int)pthread_self(), getValueArray);
+		sleep(1);
 	}
 
 	return NULL;
 }
 
 int main(int argc, char const *argv[]) {
-	int size = 10;
+	int sizeElem = 10;
 	pthread_t tid1, tid2;
 	setbuf(stdout, NULL);
 
 	if (argc == 2)
 	{
-		size = atoi(argv[1]);
+		sizeElem = atoi(argv[1]);
 	}
 	else
 	{
 		fprintf(stderr, "Cant receive value\n" );
-		return EXIT_FAILURE;
+		// return EXIT_FAILURE;
 	}
 	sem_init(&lock, 0, 1);
-	sem_init(&can_add, 0, 1);
+	sem_init(&can_add, 0, sizeElem);
 	sem_init(&can_sub, 0, 0);
+	arr = (int*)malloc(sizeElem*sizeof(int));
 
-	printf("Before. val = %ld\n", val);
+	// printf("Before. val = %ld\n", val);
 
-
-	if (pthread_create(&tid1, NULL, increment, &num) != 0)
+	seed();
+	if (pthread_create(&tid1, NULL, &producerFunc, NULL) != 0)
 	{
 		fprintf(stderr, "Error pthread_create()\n");
 	}
-	if (pthread_create(&tid2, NULL, decrement, &num) != 0)
+	if (pthread_create(&tid2, NULL, &consumerFunc, NULL) != 0)
 	{
 		fprintf(stderr, "Error pthread_create()\n");
 	}
