@@ -19,9 +19,9 @@ void seed() {
 
 void * producerFunc (void * arg) {
 
-	while (1) 
+	while (1)
 	{
-		int value = rand()%99 + 1;
+		int value = rand() % 99 + 1;
 		int index;
 		sem_wait(&can_add);
 		sem_wait(&lock);
@@ -37,8 +37,8 @@ void * producerFunc (void * arg) {
 }
 
 void * consumerFunc (void * arg) {
-	
-	while(1) 
+
+	while (1)
 	{
 		int index;
 		int getValueArray;
@@ -57,7 +57,12 @@ void * consumerFunc (void * arg) {
 
 int main(int argc, char const *argv[]) {
 	int sizeElem = 10;
-	pthread_t tid1, tid2;
+	int countPair = 2;
+	
+	pthread_t* tidProd = (pthread_t*)malloc(countPair * sizeof(pthread_t));
+	pthread_t* tidCons = (pthread_t*)malloc(countPair * sizeof(pthread_t));
+	
+
 	setbuf(stdout, NULL);
 
 	if (argc == 2)
@@ -72,47 +77,56 @@ int main(int argc, char const *argv[]) {
 	sem_init(&lock, 0, 1);
 	sem_init(&can_add, 0, sizeElem);
 	sem_init(&can_sub, 0, 0);
-	arr = (int*)malloc(sizeElem*sizeof(int));
+	arr = (int*)malloc(sizeElem * sizeof(int));
 
 	// printf("Before. val = %ld\n", val);
 
 	seed();
-	if (pthread_create(&tid1, NULL, &producerFunc, NULL) != 0)
+	for (int i = 0; i < countPair; ++i)
 	{
-		fprintf(stderr, "Error pthread_create()\n");
+		if (pthread_create(&tidProd[i], NULL, &producerFunc, NULL) != 0)
+		{
+			fprintf(stderr, "Error pthread_create()\n");
+		}
+		if (pthread_create(&tidCons[i], NULL, &consumerFunc, NULL) != 0)
+		{
+			fprintf(stderr, "Error pthread_create()\n");
+		}
 	}
-	if (pthread_create(&tid2, NULL, &consumerFunc, NULL) != 0)
+	sleep(5);
+	for (int i = 0; i < countPair; ++i)
 	{
-		fprintf(stderr, "Error pthread_create()\n");
-	}
-
-	sleep(15);
-
-	if (pthread_cancel(tid1) != 0)
-	{
-		fprintf(stderr, "Cant cancel thread\n" );
-		sleep(3);
-		pthread_cancel(tid1);
-		return EXIT_FAILURE;
-	}
-	if (pthread_cancel(tid2) != 0)
-	{
-		fprintf(stderr, "Cant cancel thread\n" );
-		sleep(3);
-		pthread_cancel(tid2);
-		return EXIT_FAILURE;
-	}
-
-	if (pthread_join(tid1, NULL) != 0)
-	{
-		fprintf(stderr, "Join error\n");
-	}
-	if (pthread_join(tid2, NULL) != 0)
-	{
-		fprintf(stderr, "Join error\n");
+		if (pthread_cancel(tidProd[i]) != 0)
+		{
+			fprintf(stderr, "Cant cancel thread\n" );
+			sleep(3);
+			return EXIT_FAILURE;
+		}
+		if (pthread_cancel(tidCons[i]) != 0)
+		{
+			fprintf(stderr, "Cant cancel thread\n" );
+			sleep(3);
+			return EXIT_FAILURE;
+		}
 	}
 
+	for (int i = 0; i < countPair; ++i)
+	{
+		if (pthread_join(tidProd[i], NULL) != 0)
+		{
+			fprintf(stderr, "Join error\n");
+		}
+		if (pthread_join(tidCons[i], NULL) != 0)
+		{
+			fprintf(stderr, "Join error\n");
+		}
+	}
 
+
+	
+	free(tidProd);
+	free(tidCons);
+	free(arr);
 	sem_destroy(&lock);
 	sem_destroy(&can_add);
 	sem_destroy(&can_sub);
