@@ -75,16 +75,16 @@ int main(int argc, char const *argv[])
 	printf("Before threads:%ld\n", glob);
 	for (int i = 0; i <= numPairs; i += 2)
 	{
-		
+
 		if (pthread_create(&threadTid[i], NULL, &threadIncr, &num) != 0) {
 			fprintf(stderr, "Error pthread_create()\n");
 			exit(EXIT_FAILURE);
-	}
+		}
 		if (pthread_create(&threadTid[i + 1], NULL, &threadIncr, &num) != 0) {
 			fprintf(stderr, "Error pthread_create()\n");
 			exit(EXIT_FAILURE);
+		}
 	}
-
 	for (int i = 0; i <= numPairs; i += 2)
 	{
 		if (pthread_join(threadTid[i], NULL) != 0) {
@@ -100,4 +100,5 @@ int main(int argc, char const *argv[])
 	free(threadTid);
 
 	return 0;
+
 }
