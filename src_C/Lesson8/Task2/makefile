@@ -1,5 +1,5 @@
 MainTarget: main.c
 	gcc main.c -o main -lpthread
-	./main 
+	./main 5
 run:
-	./main
+	./main 

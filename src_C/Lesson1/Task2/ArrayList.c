@@ -24,12 +24,12 @@ void add(struct arr_list* list, void* item){
 
 void insert(struct arr_list* list, int index, void* item){
 
-	if(index > (*list).size ){
+	if(index > (*list).size){
 		return;
 	}
 	(*list).size++;
 	(*list).data = realloc((*list).data,((*list).size)*sizeof(void*));
-	for(int i = (*list).size-2; i >= index; i--){
+	for(int i = (*list).size-1; i >= index; i--){
     	(*list).data[i+1] = (*list).data[i];
 	}
   	(*list).data[index]=item;
@@ -40,8 +40,7 @@ size_t sizeArr(struct arr_list* list){return (*list).size;}
 
 void removeList(struct arr_list* list, int index){
 
-
-	for (int i = (*list).size-2; i >= index; i--){
+	for (int i = (*list).size-1; i >= index; i--){
 		(*list).data[i+1] = (*list).data[i];
 	}
 	(*list).data = realloc((*list).data,((*list).size - 1)*sizeof(void*));
@@ -57,5 +56,13 @@ void set(struct arr_list* list, int index, void* item){
 void* get(struct arr_list* list, int index){
 
 	return (*list).data[index];
-	
+}
+void destructor(struct arr_list* list)
+{
+	for (int i = 0; i < (*list).size-1; ++i)
+	{	
+		printf("in loop i = %d\n",i );
+		free((*list).data[i]);
+	}
+	free((*list).data);
 }

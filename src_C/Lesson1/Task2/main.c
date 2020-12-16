@@ -33,9 +33,18 @@ int main(int argc,char** argv){
 	// printf("%i\n",*((int*)get(&list,4))); не сработает)
 
 	size = sizeArr(&list);	
-	printf("%i\n",size);
+	printf("size = %i\n",size);
+	// printf("Value in [1]%3f\n", *((double*)get(&list,1)));
+	// printf("%i\n", *((int*)get(&list,1)));
+	printf("bef%s\n", *((char**)get(&list,2)));
 
-	free(list.data);
+	// for (int i = 0; i < list.size-1; ++i)
+	// {	
+	// 	printf("size loop = %d\n", i);
+	// 	free(list.data[i+1]);
+	// }
+	destructor(&list);
+	// free(list.data);
 
 	return EXIT_SUCCESS;
 

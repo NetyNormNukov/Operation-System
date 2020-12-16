@@ -5,10 +5,13 @@
 
 typedef struct
 {
-	pthread_cond_t cond;
+	// pthread_cond_t cond;
+	pthread_cond_t add;
+	pthread_cond_t sub;
 	pthread_mutex_t mutex;
 	int data;
 }dataThread;
+int flag = 0;
 
 void seed() {
 	struct timespec now;
@@ -27,8 +30,12 @@ void producerFunc(void* arg)
 	{
 		int r = 1+rand()%100;
 		pthread_mutex_lock(&(data->mutex));
+		while(flag == 1) {
+			pthread_cond_wait(&(data->add), &(data->mutex));
+		}
 		data->data = r;
-		pthread_cond_signal(&(data->cond));
+		flag = 1;
+		pthread_cond_signal(&(data->sub));
 		pthread_mutex_unlock(&(data->mutex));
 		sleep(1);
 	}
@@ -42,8 +49,12 @@ void consumerFunc(void* arg)
 	{
 		int read;
 		pthread_mutex_lock(&(data->mutex));
-		pthread_cond_wait(&(data->cond),&(data->mutex));
+		while(flag == 0) {
+			pthread_cond_wait(&(data->sub), &(data->mutex));
+		}
 		read = data->data;
+		flag = 0;
+		pthread_cond_signal(&(data->add));
 		pthread_mutex_unlock(&(data->mutex));
 		printf("%d\n", read);
 		sleep(1);
@@ -68,7 +79,17 @@ int main(int argc, char const *argv[])
 	sleep(1);//for normal print string:Value of delay.
 	//init data, cond, mutex;
 	dataThread* data = (dataThread*)malloc(sizeof(dataThread));
-	if (pthread_cond_init(&(data->cond),NULL) != 0)
+	// if (pthread_cond_init(&(data->cond),NULL) != 0)
+	// {
+	// 	fprintf(stderr, "Error pthread_cond_init()\n");
+	// 	return EXIT_FAILURE;
+	// }
+	if (pthread_cond_init(&(data->add),NULL) != 0)
+	{
+		fprintf(stderr, "Error pthread_cond_init()\n");
+		return EXIT_FAILURE;
+	}
+	if (pthread_cond_init(&(data->sub),NULL) != 0)
 	{
 		fprintf(stderr, "Error pthread_cond_init()\n");
 		return EXIT_FAILURE;
@@ -121,7 +142,11 @@ int main(int argc, char const *argv[])
 		fprintf(stderr, "Join error\n");
 	}
 	//free mem
-	if(pthread_cond_destroy(&(data->cond)) != 0)
+	if(pthread_cond_destroy(&(data->add)) != 0)
+	{
+		fprintf(stderr, "Some thread still work with cond\n" );
+	}
+	if(pthread_cond_destroy(&(data->sub)) != 0)
 	{
 		fprintf(stderr, "Some thread still work with cond\n" );
 	}

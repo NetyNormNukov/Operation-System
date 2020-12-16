@@ -2,6 +2,7 @@
 
 mainTarget: ArrayList.o main.o
 		gcc  main.o ArrayList.o -o completeTask -lm 
+		./completeTask
 ArrayList.o: ArrayList.c 
 		gcc -c ArrayList.c
 main.o: main.c  ArrayList.c

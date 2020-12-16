@@ -18,5 +18,6 @@ size_t sizeArr(struct arr_list* list);
 void removeList(struct arr_list* list, int index);
 void set(struct arr_list* list, int index, void* item);
 void* get(struct arr_list* list, int index);
+void destructor(struct arr_list* list);
 
 #endif

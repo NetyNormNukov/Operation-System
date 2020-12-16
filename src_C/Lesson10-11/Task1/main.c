@@ -44,7 +44,7 @@ void mainIPC(pid_t pid, int dsk) {
 		if (n == -1) {
 			kill(pid, SIGTERM);
 			raise(SIGTERM);
-			return;
+			return ;
 		}
 		buffer[0] = n;
 		printf("%s$>",getlogin());
@@ -73,6 +73,11 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 	buffer = (int*) shmat(shm_dsc, NULL, 0);
+	if (buffer == -1)
+	{
+		fprintf(stderr, "Error: can't allocate shared memory \n" );
+		return 0;
+	}
 	pid_t pid = fork();
 	if (pid == 0) {
 		printf("Starting child process...!\n");
