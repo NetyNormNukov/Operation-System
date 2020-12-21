@@ -1,60 +1,56 @@
-#include <sys/types.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <ctype.h>
 
-int main(){
+
+int main(void) {
+	int sizeString = 100;
 	int fd1, fd2;
-	int N = 100;
-	char resstring[N], ch;
-	int i;
-	size_t size;
-	char name1[]="fd1.fifo";
-	unlink(name1);
+	char message[sizeString];
+	int bytes;
+
+	char* fifo1 = "fd1.fifo";
+	char* fifo2 = "fd2.fifo";
 
 	(void)umask(0);
-	if(mknod(name1,S_IFIFO |0666,0)<0){
-		printf("can't create fifo\n");
-		exit(-1);
+
+	if (mknod(fifo1, S_IFIFO | 0666, 0) < 0) {
+		fprintf(stderr, "mknod 1 error\n");
+		return EXIT_FAILURE;
+	}
+	if (mknod(fifo2, S_IFIFO | 0666, 0) < 0) {
+		fprintf(stderr, "mknod 2 error\n");
+		return EXIT_FAILURE;
+	}
+	if ((fd1 = open(fifo1, O_WRONLY)) < 0) {
+		fprintf(stderr, "open main error\n");
+		return EXIT_FAILURE;
+	}
+	if ((fd2 = open(fifo2, O_RDONLY)) < 0) {
+		fprintf(stderr, "open main2 error\n");
+		return EXIT_FAILURE;
 	}
 
-	if((fd1 = open(name1, O_RDWR)) < 0){
-			printf("Can\'t open FIFO for reading/writing\n");
-			exit(-1);
+	printf("Enter a string: ");
+	fgets(message, sizeString, stdin);
+	bytes = write(fd1, message, sizeString);
+	if (bytes < 0) {
+		fprintf(stderr, "parent write error\n");
+		return EXIT_FAILURE;
 	}
-	
+	bytes = read(fd2, message, sizeString);
+	if (bytes < 0) {
+		fprintf(stderr, "parent read error\n");
+		return EXIT_FAILURE;
+	}
+	printf("UpperCase: %s", message);
 
-	while(1){
-	printf("vvedite stroku\n");
-	fgets(resstring,N,stdin);
-	
-	
-	
-	i = 0;
-	while (resstring[i]){
-		ch=resstring[i];
-		resstring[i] = putchar(toupper(ch));
-		i++;
-	}
-		size = write(fd1, resstring, N);
-		if(size < 0){
-		printf("Can\'t write string\n");
-		exit(-1);
-	}
-	
-
-		size = read(fd1, resstring, N);
-		if(size < 0){
-		printf("Can\'t read string\n");
-		exit(-1);
-	}
-
-	}
 	close(fd1);
-	
+	close(fd2);
+	return EXIT_SUCCESS;
 }
